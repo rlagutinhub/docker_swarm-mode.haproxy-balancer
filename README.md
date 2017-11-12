@@ -67,8 +67,8 @@ docker service update --detach=false haproxy-balancer \
  --label-add "com.example.stats_password=password"
 ```
 
-    custom configure rsyslog server for haproxy
-    Configure on the server, which is defined in the def_log_server.
+custom configure rsyslog server for haproxy
+Configure on the server, which is defined in the def_log_server.
 
 ```console
     vim /etc/rsyslog.conf (uncomment or add)
