@@ -772,6 +772,14 @@ def clean_dir(confpath):
         except (IOError, OSError) as e:
             print('Error:', e)
 
+    else:
+
+        try:
+            os.makedirs(confpath)
+
+        except OSError as e:
+            print('Error:', e)
+
 
 def services_id():
 
