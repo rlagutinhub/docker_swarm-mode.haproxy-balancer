@@ -28,7 +28,7 @@ docker network create -d overlay haproxy-balancer_prod
 
 #### HAPROXY-BALANCER:
 
-- Create haproxy-balancer
+Create haproxy-balancer
 - Run only on the node manager!!!
 - The --endpoint-mode dnsrr not support!!!
 
@@ -119,7 +119,7 @@ docker service create --detach=false \
 ```
 
 enable autconfigure haproxy-balancer
-It is required to specify the name of the haproxy-balancer service and the common overlay network
+- It is required to specify the name of the haproxy-balancer service and the common overlay network
 that is used for the haproxy-balancer and this application service.
 
 ```console
