@@ -71,10 +71,10 @@ custom configure rsyslog server for haproxy
 Configure on the server, which is defined in the def_log_server.
 
 ```console
-    vim /etc/rsyslog.conf (uncomment or add)
-    $ModLoad imudp
-    $UDPServerRun 514
-    local2.* /var/log/haproxy.log
+vim /etc/rsyslog.conf (uncomment or add)
+$ModLoad imudp
+$UDPServerRun 514
+local2.* /var/log/haproxy.log
 ```
 
 ssl certificate - https forntend with tcp443 (docker secrets)
