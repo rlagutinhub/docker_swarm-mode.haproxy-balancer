@@ -7,6 +7,47 @@ Compiled Docker image: https://hub.docker.com/r/rlagutinhub/docker_swarm-mode.ha
 	reconfigures itself when a docker swarm cluster member redeploys, joins or leaves.
 -	Base image centos:latest
 
+#### Docker SDK
+- https://docker-py.readthedocs.io
+- https://github.com/docker/docker-py
+- https://docs.docker.com/develop/sdk/
+- https://pypi.python.org/pypi/docker/
+
+Requirements:
+- pip3 install -U docker
+- pip3 install -U Jinja2
+- pip3 install -U pyOpenSSL
+
+Tested:
+- Docker Engine 17.09.0-ce
+- docker (2.5.1)
+- Jinja2 (2.9.6)
+- pyOpenSSL (17.3.0)
+
+Docker SDK Example:
+
+```console
+import json
+import docker
+
+# client = docker.from_env()
+client = docker.DockerClient(base_url='unix://var/run/docker.sock')
+
+client.services.list()
+[<Service: ww2hfyddw3>, <Service: yq45gxwxhl>]
+
+srv = client.services.get('yq45gxwxhl')
+srv.name
+srv.attrs
+srv.tasks()
+print(json.dumps(srv.tasks(), indent=4))
+
+client.networks.list()
+net =  client.networks.get('xjaz5s7r5x')
+net.name
+net.attrs
+```
+
 #### Manual install
 
 ```console
