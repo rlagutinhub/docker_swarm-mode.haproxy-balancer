@@ -48,7 +48,7 @@ net.name
 net.attrs
 ```
 
-#### Manual install
+#### Build Image
 
 ```console
 git clone https://github.com/rlagutinhub/docker_swarm-mode.haproxy-balancer.git
@@ -61,7 +61,7 @@ Docker Image:
 docker build -t rlagutinhub/docker_swarm-mode.haproxy-balancer:201711121545 .
 ```
 
-Docker network:
+#### Network:
 
 ```console
 docker network create -d overlay haproxy-balancer_prod
