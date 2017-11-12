@@ -28,8 +28,9 @@ docker network create -d overlay haproxy-balancer_prod
 
 #### HAPROXY-BALANCER:
 
-create haproxy-balancer
-Run only on the node manager!!! The --endpoint-mode dnsrr not support!!!
+- Create haproxy-balancer
+- Run only on the node manager!!!
+- The --endpoint-mode dnsrr not support!!!
 
 ```console
 docker service create --detach=false \
@@ -99,17 +100,14 @@ docker service update --detach=false \
  haproxy-balancer
 ```
 
-
-####  APP(s)
-(https://github.com/rlagutinhub/docker_swarm-mode.haproxy-test)
-
+####  APP(s) (https://github.com/rlagutinhub/docker_swarm-mode.haproxy-test)
 
 create app
 
-The --mode Replicated is supported.
-The --mode Global is supported.
-The --endpoint-mode vip is supported.
-The --endpoint-mode dnsrr is supported. Port published with ingress mode can't be used with dnsrr mode!
+- The --mode Replicated is supported.
+- The --mode Global is supported.
+- The --endpoint-mode vip is supported.
+- The --endpoint-mode dnsrr is supported. Port published with ingress mode can't be used with dnsrr mode!
 
 ```console
 docker service create --detach=false \
