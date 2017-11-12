@@ -1,0 +1,30 @@
+# rlagutinhub.community.vendor="Lagutin R.A."
+# rlagutinhub.community.maintainer="Lagutin R.A. <rlagutin@mta4.ru>"
+# rlagutinhub.community.name="docker_swarm-mode.haproxy-balancer"
+# rlagutinhub.community.description="docker_swarm-mode.haproxy-balancer"
+# rlagutinhub.community.version="v.1-prod."
+# rlagutinhub.community.release-date="201711121545"
+
+# HAproxy image that autoreconfigures itself when used in Docker Swarm Mode
+# HAProxy image that balances between network attachments (not linked) tasks of services and
+# reconfigures itself when a docker swarm cluster member redeploys, joins or leaves.
+
+# docker build -t rlagutinhub/docker_swarm-mode.haproxy-balancer:201711121545 -f Dockerfile.dev .
+
+FROM rlagutinhub/docker_swarm-mode.haproxy-balancer:201711121545
+
+COPY build /tmp/build
+
+RUN chmod +x /tmp/build/supervisord/*.py && \
+ rm -rf /etc/supervisord && \
+ mv -f /tmp/build/supervisord /etc/supervisord && \
+ chmod +x /tmp/build/haproxy-balancer/*.py && \
+ rm -rf /etc/haproxy/haproxy-balancer && \
+ mv -f /tmp/build/haproxy-balancer /etc/haproxy/haproxy-balancer && \
+ rm -rf /tmp/build && \
+ ln -sf /dev/stdout /var/log/haproxy.log
+
+# EXPOSE 80 443 1936
+
+ENTRYPOINT ["/etc/docker-entrypoint.sh"]
+CMD ["supervisord", "-c", "/etc/supervisord/supervisord.conf"]
