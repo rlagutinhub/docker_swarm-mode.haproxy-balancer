@@ -3,7 +3,7 @@
 
 # NAME:   DOCKER_SWARM-MODE.HAPROXY-BALANCER.PY
 # DESC:   HAPROXY IMAGE THAT AUTORECONFIGURES ITSELF WHEN USED IN DOCKER SWARM MODE
-# DATE:   12-11-2017
+# DATE:   13-11-2017
 # LANG:   PYTHON 3
 # AUTHOR: LAGUTIN R.A.
 # EMAIL:  RLAGUTIN@MTA4.RU
@@ -16,6 +16,8 @@
 HAproxy image that autoreconfigures itself when used in Docker Swarm Mode
 HAProxy image that balances between network attachments (not linked) tasks of services and
 reconfigures itself when a docker swarm cluster member redeploys, joins or leaves.
+
+Important: The names of services, networks, labels should be in lowercase!
 
 Requirements:
 
@@ -200,6 +202,10 @@ class DockerServiceClass(object):
 
         self.srv = client.services.get(srv_id)
 
+    def get_id(self):
+
+        return self.srv.id
+
     def get_name(self):
 
         return self.srv.name
@@ -340,6 +346,7 @@ class DockerServiceClass(object):
 class DockerContainerClass(object):
 
     def __init__(self, cln_id):
+
         self.cln = self.__check_cln(cln_id)
 
     def __check_cln(self, cln_id):
@@ -364,6 +371,25 @@ class DockerContainerClass(object):
 
         else:
             return False
+
+
+class DockerNetworkClass(object):
+
+    def __init__(self, net_id):
+
+        self.net = client.networks.get(net_id)
+
+    def net_id(self):
+
+        return self.net.id
+
+    def net_name(self):
+
+        return self.net.name
+
+    def net_servises(self):
+
+        return self.net.client.services.list()
 
 
 class bcolors(object):
@@ -1016,6 +1042,9 @@ def backend_net(NetworksAttachment, NetworkName):
 
             if ip is True:
                 break
+    
+    else:
+        ip = '169.254.0.1' # Set APIPA
 
     return ip
 
@@ -1169,7 +1198,7 @@ def get_haproxy_stats_port():
         return DEF_MAIN_SETTINGS['stats_port']
 
 
-def get_haproxy_service_name():
+def get_haproxy_service():
 
     hostname = get_hostname()
 
@@ -1186,7 +1215,41 @@ def get_haproxy_service_name():
 
     service = DockerServiceClass(service_id)
 
-    return service.get_name()
+    return {
+        'name': service.get_name(),
+        'id': service.get_id()
+    }
+
+
+def check_proxy_net(proxy_net, haproxy_service_id, service_id):
+
+    net_id = None
+    service_col = list()
+
+    for netwrok in client.networks.list():
+
+        if netwrok.name == proxy_net:
+            net_id = netwrok.id
+            break
+
+    if net_id:
+
+        net = DockerNetworkClass(net_id)
+
+        for service in net.net_servises():
+            service_col.append(str(service.id))
+
+    if service_col:
+
+        if haproxy_service_id in service_col and service_id in service_col:
+            return True
+
+        else:
+            return False
+
+    else:
+
+        return False
 
 
 def configure():
@@ -1204,9 +1267,19 @@ def configure():
     backend_tcp_col_sticky_false = list()
     backend_tcp_col_sticky_true = list()
 
-    haproxy_service_name = get_haproxy_service_name()
+    haproxy_service = get_haproxy_service()
+
+    try:
+        haproxy_service_name = haproxy_service['name']
+        haproxy_service_id = haproxy_service['id']
+
+    except KeyError:
+        sys.exit(1)
 
     if not haproxy_service_name:
+        sys.exit(1)
+
+    if not haproxy_service_id:
         sys.exit(1)
 
     for service_id in services_id():
@@ -1231,7 +1304,7 @@ def configure():
             service_mode_check = False
 
         if (service_name and service_labels and service_tasks and service_mode and service_mode_check and
-            LABEL_PREF + '.' + 'proxy_net' in service_labels.keys() and
+            LABEL_PREF + '.' + 'proxy_net' in service_labels.keys() and check_proxy_net(service_labels[LABEL_PREF + '.' + 'proxy_net'], haproxy_service_id, service_id) and
             LABEL_PREF + '.' + 'proxy_name' in service_labels.keys() and service_labels[LABEL_PREF + '.' + 'proxy_name'] == haproxy_service_name and
                 LABEL_PREF + '.' + 'proxy' in service_labels.keys() and service_labels[LABEL_PREF + '.' + 'proxy'] == 'true' and get_haproxy_true()):
 
@@ -1840,7 +1913,7 @@ def usage():
     print()
     print(bcolors.OKGREEN + 'NAME:   DOCKER_SWARM-MODE.HAPROXY-BALANCER.PY' + bcolors.ENDC)
     print(bcolors.OKGREEN + 'DESC:   HAPROXY IMAGE THAT AUTORECONFIGURES ITSELF WHEN USED IN DOCKER SWARM MODE' + bcolors.ENDC)
-    print(bcolors.OKGREEN + 'DATE:   12-11-2017' + bcolors.ENDC)
+    print(bcolors.OKGREEN + 'DATE:   13-11-2017' + bcolors.ENDC)
     print(bcolors.OKGREEN + 'LANG:   PYTHON 3' + bcolors.ENDC)
     print(bcolors.OKGREEN + 'AUTHOR: LAGUTIN R.A.' + bcolors.ENDC)
     print(bcolors.OKGREEN + 'EMAIL:  RLAGUTIN@MTA4.RU' + bcolors.ENDC)
@@ -1851,6 +1924,8 @@ reconfigures itself when a docker swarm cluster member redeploys, joins or leave
 
 ''')
 
+    print(bcolors.FAIL + 'Important: The names of services, networks, labels should be in lowercase!' + bcolors.ENDC)
+    print()
     print(bcolors.BOLD + bcolors.UNDERLINE + 'Requirements:' + bcolors.ENDC)
     print(bcolors.OKBLUE + '''
 pip3 install -U docker
@@ -1913,7 +1988,7 @@ net.attrs
 git clone https://github.com/rlagutinhub/docker_swarm-mode.haproxy-balancer.git
 cd docker_swarm-mode.haproxy-balancer
 
-docker build -t rlagutinhub/docker_swarm-mode.haproxy-balancer:201711121545 .
+docker build -t rlagutinhub/docker_swarm-mode.haproxy-balancer .
 
     ''' + bcolors.ENDC)
 
@@ -1939,7 +2014,7 @@ docker service create --detach=false \\
  --mount target=/var/run/docker.sock,source=/var/run/docker.sock,type=bind \\
  --mode global \\
  --constraint "node.role == manager" \\
- rlagutinhub/docker_swarm-mode.haproxy-balancer:201711121545
+ rlagutinhub/docker_swarm-mode.haproxy-balancer:latest
 
     ''' + bcolors.ENDC)
 
