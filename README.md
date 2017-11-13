@@ -7,6 +7,8 @@ Compiled Docker image: https://hub.docker.com/r/rlagutinhub/docker_swarm-mode.ha
 	reconfigures itself when a docker swarm cluster member redeploys, joins or leaves.
 -	Base image centos:latest
 
+##### Important: The names of services, networks, labels should be in lowercase!
+
 #### Docker SDK
 - https://docker-py.readthedocs.io
 - https://github.com/docker/docker-py
@@ -58,7 +60,7 @@ cd docker_swarm-mode.haproxy-balancer
 Docker Image:
 
 ```console
-docker build -t rlagutinhub/docker_swarm-mode.haproxy-balancer:201711121545 .
+docker build -t rlagutinhub/docker_swarm-mode.haproxy-balancer .
 ```
 
 #### Network:
@@ -80,7 +82,7 @@ docker service create --detach=false \
  --mount target=/var/run/docker.sock,source=/var/run/docker.sock,type=bind \
  --mode global \
  --constraint "node.role == manager" \
- rlagutinhub/docker_swarm-mode.haproxy-balancer:201711121545
+ rlagutinhub/docker_swarm-mode.haproxy-balancer:latest
 ```
 
 enable autconfigure haproxy-balancer
