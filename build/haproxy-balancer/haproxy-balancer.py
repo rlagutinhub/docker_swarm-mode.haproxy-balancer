@@ -1042,9 +1042,9 @@ def backend_net(NetworksAttachment, NetworkName):
 
             if ip is True:
                 break
-    
-    else:
-        ip = '169.254.0.1' # Set APIPA
+
+    # else:
+    #     ip = '169.254.0.1' # Set APIPA
 
     return ip
 
